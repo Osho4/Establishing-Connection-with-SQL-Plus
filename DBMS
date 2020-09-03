@@ -1,0 +1,93 @@
+package dbms;
+
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+
+/**
+ *
+ * @author USER
+ */
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+public class ICAS2 {
+	static Connection connection;
+	
+	ICAS2() {
+		JFrame jf = new JFrame("Teacher");
+		jf.setSize(300,300);
+		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jf.setLayout(new FlowLayout());
+		JLabel jlname = new JLabel("name");
+		JTextField jtfname = new JTextField(20);
+		JTextField jtfphone = new JTextField(20);
+		JButton jb = new JButton("Insert");
+		JLabel jlphone = new JLabel("phone");
+		jf.add(jlname);
+		jf.add(jtfname);
+		jf.add(jlphone);
+		jf.add(jtfphone);
+		jf.add(jb);
+		jf.setVisible(true);
+		
+		//CREATE TABLE teacher(name varchar(20),phone number(10));
+		
+		jb.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {				
+				PreparedStatement stmt;
+				String insertStr = "INSERT INTO teacher values(?,?)";
+				try {
+					stmt = connection.prepareStatement(insertStr);
+					stmt.setString(1, jtfname.getText());
+					stmt.setLong(2,Long.parseLong(jtfphone.getText()));
+					int status = stmt.executeUpdate();
+					if (status == 1) {
+						System.out.println("Inserted " + jtfname.getText() + " " +jtfphone.getText());
+					}
+				} catch(SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	private static void initializeDatabase() {
+        try {
+            // step1 load the driver class
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+            // step2 create the connection object
+            connection = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "USER", "PASSWORD");
+            // step3 create the statement object
+            System.out.println("connected");
+        } catch (SQLException | ClassNotFoundException ex) {
+            System.out.println(ex);
+        }
+    }
+
+	public static void main(String[] args) {
+		initializeDatabase();
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				new ICAS2();
+			}
+		});
+	}
+}
